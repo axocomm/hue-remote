@@ -40,7 +40,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/status')
-@app.route('/status/<light>')
+@app.route('/status/<light>', methods=['GET'])
 def status(light=None):
     code, status = get_status()
     if code != 200 or 'error' in status:
@@ -65,6 +65,10 @@ def status(light=None):
             'success': False,
             'error': 'Invalid light %s' % light
         })
+
+@app.route('/status/<light>', methods=['POST'])
+def set_status(light):
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

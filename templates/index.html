@@ -15,7 +15,7 @@
         <h1>Status</h1>
         <div class="grid" id="lights">
           <div v-for="light in lights" v-bind:class="{on: isLightOn(light)}">
-            <div class="icon"></div>
+            <div @click="toggleLight(light)" class="icon"></div>
             <div class="details">
               <span>{{ light.name }}</span>
             </div>
