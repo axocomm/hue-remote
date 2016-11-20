@@ -3,19 +3,26 @@
   <head>
     <meta charset="utf-8">
     <title>Hue Status</title>
+    <link rel="stylesheet" href="$ url_for('static', filename='css/reset.css') $">
+    <link rel="stylesheet" href="$ url_for('static', filename='css/cutestrap.min.css') $">
+    <link rel="stylesheet" href="$ url_for('static', filename='css/styles.css') $">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.8/vue.min.js"></script>
   </head>
   <body>
-    <main id="content">
+    <div class="wrapper" id="content">
       <div id="app">
-        <div id="lights">
+        <h1>Status</h1>
+        <div class="grid" id="lights">
           <div v-for="light in lights" v-bind:class="{on: isLightOn(light)}">
-            <span>{{ light.name }}</span>
+            <div class="icon"></div>
+            <div class="details">
+              <span>{{ light.name }}</span>
+            </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
     <script src="$ url_for('static', filename='js/app.js') $"></script>
   </body>
 </html>
