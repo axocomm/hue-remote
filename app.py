@@ -39,8 +39,8 @@ def get_status():
 def index():
     return render_template('index.html')
 
-@app.route('/status')
-@app.route('/status/<light>', methods=['GET'])
+@app.route('/lights')
+@app.route('/lights/<light>', methods=['GET'])
 def status(light=None):
     code, status = get_status()
     if code != 200 or 'error' in status:
@@ -52,13 +52,12 @@ def status(light=None):
     if not light:
         return jsonify({
             'success': True,
-            'status': status
+            'lights': status
         })
     elif light in status:
         return jsonify({
             'success': True,
-            'light': light,
-            'status': status[light]
+            'light': status[light]
         })
     else:
         return jsonify({
@@ -66,7 +65,7 @@ def status(light=None):
             'error': 'Invalid light %s' % light
         })
 
-@app.route('/status/<light>', methods=['POST'])
+@app.route('/lights/<light>', methods=['POST'])
 def set_status(light):
     return jsonify({'success': True})
 

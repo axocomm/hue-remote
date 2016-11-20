@@ -14,9 +14,9 @@ var HueApp = new Vue({
   methods: {
     getStatus: function () {
       var that = this;
-      $.get('/status', function (responseData) {
+      $.get('/lights', function (responseData) {
         if (responseData.success) {
-          var lights = responseData.status;
+          var lights = responseData.lights;
           that.lights = Object.keys(lights)
             .reduce(function (acc, k) {
               var light = lights[k];
@@ -34,7 +34,7 @@ var HueApp = new Vue({
 
     toggleLight: function (light) {
       var that = this;
-      var url = '/status/' + light.id;
+      var url = '/lights/' + light.id;
       var newState = !this.isLightOn(light);
 
       $.post(url, {'on': newState}, function (responseData) {
