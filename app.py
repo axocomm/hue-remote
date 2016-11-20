@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import json
 import requests
 
@@ -23,6 +23,10 @@ def get_status():
         return [s, r.json()]
 
     return [s, r.text]
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/status')
 @app.route('/status/<light>')
