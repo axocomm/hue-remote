@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import json
 import requests
 
@@ -35,6 +35,18 @@ def get_status():
 
     return [s, r.text]
 
+def set_power(light, on):
+    """Set the power of a light.
+
+    Returns HTTP status code and response from API"""
+    url = api_url('lights/%s/state' % light)
+    r = requests.put(url, data=json.dumps({'on': on}))
+    s = r.status_code
+
+    if s == 200:
+        return [s, r.json()]
+    return [s, r.text]
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -67,7 +79,26 @@ def status(light=None):
 
 @app.route('/lights/<light>', methods=['POST'])
 def set_status(light):
-    return jsonify({'success': True})
+    if 'on' not in request.form:
+        return jsonify({
+            'success': False,
+            'error': "Missing 'on' parameter"
+        })
+
+    on = request.form['on'] == 'true'
+    code, result = set_power(light, on)
+
+    print(result)
+
+    if code == 200 and 'error' not in result:
+        return jsonify({
+            'success': True,
+            'result': result
+        })
+    return jsonify({
+        'success': False,
+        'error': result
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
