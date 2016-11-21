@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, Response
+from functools import wraps
 import json
 import requests
 
@@ -18,6 +19,25 @@ app.config['USERNAME'] = 'xVPrnYHbkur99h0cSfDMGPXwft7wa4pVlmCemGxC'
 app.config['HOST'] = '192.168.86.110'
 
 API_URL_FORMAT = 'http://%s/api/%s/%s'
+
+def check_auth(username, password):
+    return username == 'admin' and password == 'secretlol'
+
+def authenticate():
+    return Response(
+        'LOL, no',
+        401,
+        {'WWW-Authenticate': 'Basic realm="Login Required'}
+    )
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 def api_url(sfx):
     """Return the API URL for the given suffix."""
@@ -48,11 +68,13 @@ def set_power(light, on):
     return [s, r.text]
 
 @app.route('/')
+@requires_auth
 def index():
     return render_template('index.html')
 
 @app.route('/lights')
 @app.route('/lights/<light>', methods=['GET'])
+@requires_auth
 def status(light=None):
     code, status = get_status()
     if code != 200 or 'error' in status:
@@ -78,6 +100,7 @@ def status(light=None):
         })
 
 @app.route('/lights/<light>', methods=['POST'])
+@requires_auth
 def set_status(light):
     if 'on' not in request.form:
         return jsonify({
