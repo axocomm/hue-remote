@@ -6,12 +6,12 @@ import requests
 class VueSafeFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
     jinja_options.update(dict(
-        block_start_string='$$',
-        block_end_string='$$',
-        variable_start_string='$',
-        variable_end_string='$',
-        comment_start_string='$#',
-        comment_end_string='#$'
+        block_start_string='||',
+        block_end_string='||',
+        variable_start_string='|',
+        variable_end_string='|',
+        comment_start_string='|#',
+        comment_end_string='|$'
     ))
 
 app = VueSafeFlask(__name__)
@@ -52,7 +52,6 @@ def get_status():
 
     if s == 200:
         return [s, r.json()]
-
     return [s, r.text]
 
 def set_power(light, on):
@@ -61,6 +60,16 @@ def set_power(light, on):
     Returns HTTP status code and response from API"""
     url = api_url('lights/%s/state' % light)
     r = requests.put(url, data=json.dumps({'on': on}))
+    s = r.status_code
+
+    if s == 200:
+        return [s, r.json()]
+    return [s, r.text]
+
+def set_brightness(light, bri):
+    data = json.dumps({'on': True, 'bri': bri})
+    url = api_url('lights/%s/state' % light)
+    r = requests.put(url, data=data)
     s = r.status_code
 
     if s == 200:
@@ -111,17 +120,48 @@ def set_status(light):
     on = request.form['on'] == 'true'
     code, result = set_power(light, on)
 
-    print(result)
-
     if code == 200 and 'error' not in result:
         return jsonify({
             'success': True,
             'result': result
         })
-    return jsonify({
-        'success': False,
-        'error': result
-    })
+    else:
+        return jsonify({
+            'success': False,
+            'error': result
+        })
+
+@app.route('/lights/<light>/dim', methods=['POST'])
+@requires_auth
+def dim_light(light):
+    if 'bri' not in request.form:
+        return jsonify({
+            'success': False,
+            'error': "Missing 'bri' parameter"
+        })
+
+    try:
+        bri = int(request.form['bri'])
+        bri = max(min(bri, 254), 0)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': 'Invalid brightness %s' % bri
+        })
+
+    code, result = set_brightness(light, bri)
+    if code == 200 and 'error' not in result:
+        return jsonify({
+            'success': True,
+            'light': light,
+            'bri': bri
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'error': result
+        })
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

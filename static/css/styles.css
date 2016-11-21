@@ -1,5 +1,5 @@
 #lights > div {
-  height: 300px;
+  height: 350px;
 }
 
 #lights > div .icon {
@@ -17,4 +17,12 @@
 #lights > div .details {
   bottom: 0;
   text-align: center;
+}
+
+#lights > div .details input[type=range] {
+  margin: 0 auto;
+}
+
+#lights > div .details .name {
+  font-weight: bold;
 }

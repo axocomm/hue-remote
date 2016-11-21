@@ -44,6 +44,18 @@ var HueApp = new Vue({
           console.error('Could not set state: ' + responseData);
         }
       }, 'json');
+    },
+
+    dimLight: function (e, light) {
+      var that = this;
+      var bri = e.target.value;
+      var url = '/lights/' + light.id + '/dim';
+
+      $.post(url, {'bri': bri}, function (responseData) {
+        if (!responseData.success) {
+          console.error('Could not set brightness: ' + responseData);
+        }
+      }, 'json');
     }
   }
 });
